@@ -2,396 +2,669 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
-import FrogMascot from '../components/FrogMascot';
-import MoodModal from '../components/MoodModal';
-import GratitudePond from '../components/GratitudePond';
-import HappinessRibbit from '../components/HappinessRibbit';
-import PhysicsWrapper from '../components/PhysicsWrapper';
-import StarryPondBackground from '../components/StarryPondBackground';
+const PUNS = [
+    "What do you call a frog with no legs? Unhoppy! 🐸",
+    "Why are frogs so happy? They eat whatever bugs them! 🐛",
+    "Time flies like an arrow, fruit flies like a banana... but frogs just hop! 🕰️",
+    "What's a frog's favorite candy? Lollihops! 🍭",
+    "Why did the frog read the book? He wanted to be a well-read amphibian! 📚",
+    "What do you get when you cross a frog with a rabbit? A bunny that hops higher! 🐰",
+    "Frogs are great at poker because they're good at bluffing! 🎰",
+    "Why don't frogs wear shoes? They prefer to go barefoot! 👣",
+    "What's a frog's favorite type of music? Hip-hop! 🎵",
+    "Frogs never get lost because they always know which way to hop! 🧭"
+];
+
+const MOTIVATIONS = [
+    "You're toad-ally amazing! Keep going! 🌟",
+    "Every small hop counts towards your big leap! 🐸",
+    "You're making ripples of positive change! 💚",
+    "Your gratitude is growing like a beautiful lily pad! 🌸",
+    "Keep jumping, your best pond is ahead! 🏞️",
+    "You're un-frog-gettable! Stay amazing! ✨",
+    "Your kindness is making the world a better pond! 🌍",
+    "Hop into today with confidence! You've got this! 💪",
+    "Your positive energy is like sunshine on a lily pad! ☀️",
+    "You're ribbiting with potential! Keep shining! 🌟"
+];
 
 export default function Dashboard({ user, onLogout }) {
-    const [antiGravity, setAntiGravity] = useState(false);
-    const [gravity, setGravity] = useState(0.5);
-    const [showMoodModal, setShowMoodModal] = useState(false);
-    const [physicsTokens, setPhysicsTokens] = useState([]);
-    const [streak, setStreak] = useState({ streak_days: 0, accessory_level: 0, total_notes: 0 });
-    const [moodScore, setMoodScore] = useState(null);
+    const [showPondView, setShowPondView] = useState(false);
+    const [lilypadMessages, setLilypadMessages] = useState([]);
     const [notification, setNotification] = useState('');
+    const [pun, setPun] = useState('');
+    const [motivation, setMotivation] = useState('');
 
+    // Load stored lilypads on component mount
     useEffect(() => {
-        axios.get('/gratitude/streak').then(r => setStreak(r.data)).catch(() => { });
-    }, []);
-
-    const handleAntiGravityToggle = () => {
-        const next = !antiGravity;
-        setAntiGravity(next);
-        if (next) {
-            setGravity(0);
-            document.body.classList.add('anti-gravity');
-            showNotif('🌟 Anti-Gravity activated! UI elements are now floating!');
-        } else {
-            setGravity(0.5);
-            document.body.classList.remove('anti-gravity');
-            setPhysicsTokens([]);
-        }
-    };
-
-    const handleMoodSelect = (newGravity, score) => {
-        setGravity(newGravity);
-        setMoodScore(score);
-        if (score <= 2) {
-            showNotif('💚 Froggo is here for you. Keep going 🐸');
-        } else if (score === 5) {
-            showNotif("🌟 Toad-ally Amazing! You're flying!");
-        }
-    };
-
-    const handleGravityShift = useCallback((val) => {
-        setGravity(val);
-        if (val === 0 && !antiGravity) {
-            setAntiGravity(true);
-            document.body.classList.add('anti-gravity');
-        }
-    }, [antiGravity]);
-
-    const handleNoteSubmit = useCallback(async (text) => {
-        setPhysicsTokens(prev => [...prev, { type: 'lily', text, id: Date.now() }]);
-        const r = await axios.get('/gratitude/streak').catch(() => null);
-        if (r) {
-            const prev = streak.accessory_level;
-            setStreak(r.data);
-            if (r.data.accessory_level > prev) {
-                const accessories = ['', '🌸 a Flower', '🎩 a Hat', '👑 a Crown', '🌟 a Star'];
-                showNotif(`🎉 Froggo earned ${accessories[r.data.accessory_level]}! Check the mascot!`);
+        const storedLilypads = localStorage.getItem(`lilypads_${user?.username || 'guest'}`);
+        if (storedLilypads) {
+            try {
+                setLilypadMessages(JSON.parse(storedLilypads));
+            } catch (e) {
+                console.error('Error loading stored lilypads:', e);
             }
         }
-    }, [streak]);
+    }, [user?.username]);
 
-    const handleSpawnBubble = useCallback((text) => {
-        setPhysicsTokens(prev => [...prev, { type: 'bubble', text, id: Date.now() + 1 }]);
-        if (!antiGravity) {
-            setAntiGravity(true);
-            document.body.classList.add('anti-gravity');
-            setGravity(0);
+    // Save lilypads to localStorage whenever they change
+    useEffect(() => {
+        if (lilypadMessages.length > 0) {
+            localStorage.setItem(`lilypads_${user?.username || 'guest'}`, JSON.stringify(lilypadMessages));
         }
-    }, [antiGravity]);
+    }, [lilypadMessages, user?.username]);
 
-    const showNotif = (msg) => {
-        setNotification(msg);
-        setTimeout(() => setNotification(''), 4000);
-    };
+    // Special welcome message for Olisa
+    useEffect(() => {
+        if (user?.username === 'olisa') {
+            const timer = setTimeout(() => {
+                setNotification("I'm so proud of you! Here's a lil gift from me love, Shilpa 💚");
+                // Also show in console for debugging
+                console.log("Olisa special message triggered!");
+            }, 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [user?.username]);
 
-    const gravityLabel = gravity === 0 ? '✨ Floating!' : gravity >= 0.8 ? '😔 Heavy...' : `🌿 ${Math.round((1 - gravity) * 100)}% lifted`;
+    // Generate random pun
+    const generatePun = useCallback(() => {
+        const randomPun = PUNS[Math.floor(Math.random() * PUNS.length)];
+        setPun(randomPun);
+        setNotification(randomPun);
+        setTimeout(() => setNotification(''), 5000);
+    }, []);
+
+    // Generate random motivation
+    const generateMotivation = useCallback(() => {
+        const randomMotivation = MOTIVATIONS[Math.floor(Math.random() * MOTIVATIONS.length)];
+        setMotivation(randomMotivation);
+        setNotification(randomMotivation);
+        setTimeout(() => setNotification(''), 5000);
+    }, []);
+
+    const handleNoteSubmit = useCallback(async (text) => {
+        const newMessage = {
+            id: Date.now(),
+            text: text,
+            timestamp: Date.now()
+        };
+        setLilypadMessages(prev => [...prev, newMessage]);
+        
+        // Randomly show pun or motivation after adding a message
+        if (Math.random() > 0.5) {
+            setTimeout(() => generatePun(), 1000);
+        } else {
+            setTimeout(() => generateMotivation(), 1000);
+        }
+    }, [generatePun, generateMotivation]);
 
     return (
         <div style={{
             minHeight: '100vh',
-            position: 'relative',
-            transition: 'background 1s ease',
-            background: antiGravity
-                ? 'var(--night)'
-                : 'linear-gradient(135deg, #e8f5e9 0%, #f5f5dc 50%, #c8e6c9 100%)',
+            background: 'linear-gradient(135deg, #e8f5e9 0%, #f5f5dc 50%, #c8e6c9 100%)',
+            padding: '20px',
         }}>
-            {/* Starry pond */}
-            <StarryPondBackground active={antiGravity} />
-
-            {/* Physics wrapper */}
-            <PhysicsWrapper active={antiGravity} gravity={gravity} physicsTokens={physicsTokens}>
-                {/* ─── Main content ─────────────────────────────────── */}
-                <div style={{ position: 'relative', zIndex: 10, padding: 'clamp(16px, 3vw, 32px)', maxWidth: '900px', margin: '0 auto' }}>
-
-                    {/* Header */}
-                    <motion.header
-                        className="physics-body"
-                        data-label="header"
-                        initial={{ y: -30, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            marginBottom: '28px',
-                            flexWrap: 'wrap',
-                            gap: '12px',
-                        }}
-                    >
-                        <div>
-                            <h1 className="font-pixel" style={{
-                                fontSize: 'clamp(10px, 2vw, 16px)',
-                                color: antiGravity ? 'var(--lily)' : 'var(--earth)',
-                                transition: 'color 0.8s ease',
-                                textShadow: antiGravity ? '0 0 12px rgba(168,213,162,0.6)' : 'none',
-                            }}>
-                                🐸 Leap of Faith
-                            </h1>
-                            <p style={{
-                                color: antiGravity ? 'var(--sage-light)' : 'var(--pond)',
-                                fontWeight: 700,
-                                marginTop: '4px',
-                                transition: 'color 0.8s ease',
-                            }}>
-                                Hey {user?.username}! {streak.streak_days > 0 ? `🔥 ${streak.streak_days}-day streak!` : 'Welcome to the pond!'}
-                            </p>
-                        </div>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                            <div style={{
-                                background: antiGravity ? 'rgba(168,213,162,0.1)' : 'var(--cream-dark)',
-                                borderRadius: '50px',
-                                padding: '6px 14px',
-                                fontSize: '0.8rem',
-                                fontWeight: 700,
-                                color: antiGravity ? 'var(--lily)' : 'var(--pond)',
-                                border: `1px solid ${antiGravity ? 'var(--sage)' : 'var(--sage-light)'}`,
-                                transition: 'all 0.5s ease',
-                            }}>
-                                {gravityLabel}
-                            </div>
-                            <button
-                                onClick={onLogout}
-                                style={{
-                                    background: 'none',
-                                    border: '1px solid var(--sage-light)',
-                                    borderRadius: '50px',
-                                    padding: '6px 14px',
-                                    cursor: 'pointer',
-                                    fontFamily: 'Nunito, sans-serif',
-                                    fontWeight: 700,
-                                    fontSize: '0.8rem',
-                                    color: antiGravity ? 'var(--sage-light)' : 'var(--sage-dark)',
-                                }}
-                            >
-                                🚪 Hop Out
-                            </button>
-                        </div>
-                    </motion.header>
-
-                    {/* Streak banner */}
-                    {streak.streak_days >= 3 && (
-                        <motion.div
-                            className="pond-card physics-body"
-                            data-label="streak-banner"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            style={{
-                                padding: '16px 24px',
-                                marginBottom: '20px',
-                                background: antiGravity ? 'rgba(168,213,162,0.1)' : 'rgba(168,213,162,0.3)',
-                                borderColor: 'var(--lily-glow)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '14px',
-                            }}
-                        >
-                            <span style={{ fontSize: '32px' }}>🏆</span>
-                            <div>
-                                <p style={{ fontWeight: 800, color: antiGravity ? 'var(--lily)' : 'var(--pond)' }}>
-                                    {streak.streak_days}-Day Gratitude Streak!
-                                </p>
-                                <p style={{ fontSize: '0.85rem', color: antiGravity ? 'var(--sage-light)' : 'var(--sage-dark)' }}>
-                                    Froggo's level: {['Plain 🐸', '🌸 Flower', '🎩 Hatted', '👑 Royal', '🌟 Legendary'][Math.min(streak.accessory_level, 4)]}
-                                    {' — '}
-                                    {streak.total_notes} gratitude note{streak.total_notes !== 1 ? 's' : ''} total
-                                </p>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Action buttons row */}
-                    <motion.div
-                        className="physics-body"
-                        data-label="action-buttons"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.15 }}
-                        style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}
-                    >
-                        {/* Lift Your Spirits */}
-                        <motion.button
-                            onClick={handleAntiGravityToggle}
-                            whileHover={{ scale: 1.04, y: -3 }}
-                            whileTap={{ scale: 0.95 }}
-                            animate={antiGravity ? {
-                                boxShadow: ['0 0 10px rgba(168,213,162,0.3)', '0 0 30px rgba(168,213,162,0.7)', '0 0 10px rgba(168,213,162,0.3)'],
-                            } : {}}
-                            transition={antiGravity ? { repeat: Infinity, duration: 2 } : {}}
-                            style={{
-                                background: antiGravity
-                                    ? 'linear-gradient(135deg, #1a4a2a, #2d6a40)'
-                                    : 'linear-gradient(135deg, var(--earth-light), var(--earth))',
-                                color: 'var(--cream)',
-                                border: `2px solid ${antiGravity ? 'var(--lily)' : 'transparent'}`,
-                                borderRadius: '50px',
-                                padding: '14px 24px',
-                                fontFamily: 'Nunito, sans-serif',
-                                fontWeight: 800,
-                                fontSize: '1rem',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                boxShadow: antiGravity ? '0 0 20px rgba(168,213,162,0.5)' : '0 4px 15px rgba(107,66,38,0.3)',
-                                transition: 'all 0.4s ease',
-                            }}
-                        >
-                            {antiGravity ? '🌍 Back to Earth' : '✨ Lift Your Spirits!'}
-                        </motion.button>
-
-                        {/* Mood Check-in */}
-                        <motion.button
-                            onClick={() => setShowMoodModal(true)}
-                            whileHover={{ scale: 1.04, y: -3 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="btn-sage"
-                        >
-                            🌿 Mood Check-In
-                        </motion.button>
-
-                        {/* Happiness Ribbit */}
-                        <HappinessRibbit onSpawnBubble={handleSpawnBubble} antiGravity={antiGravity} />
-                    </motion.div>
-
-                    {/* Main cards grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-                        {/* Gratitude Pond */}
-                        <GratitudePond
-                            onGravityShift={handleGravityShift}
-                            onNoteSubmit={handleNoteSubmit}
-                            antiGravity={antiGravity}
-                        />
-
-                        {/* Frog tips card */}
-                        <motion.div
-                            className="pond-card physics-body"
-                            data-label="tips-card"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                            style={{
-                                padding: '24px',
-                                background: antiGravity ? 'rgba(26,46,26,0.8)' : undefined,
-                                transition: 'background 0.8s ease',
-                            }}
-                        >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                                <span style={{ fontSize: '28px' }}>🐸</span>
-                                <h3 className="font-pixel" style={{
-                                    fontSize: 'clamp(8px, 1.5vw, 10px)',
-                                    color: antiGravity ? 'var(--lily)' : 'var(--earth)',
-                                    lineHeight: 1.6,
-                                    transition: 'color 0.5s ease',
-                                }}>
-                                    Froggo's Pond Tips
-                                </h3>
-                            </div>
-
-                            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                                {[
-                                    { icon: '✨', text: 'Click "Lift Your Spirits" to enter anti-gravity mode!' },
-                                    { icon: '🌿', text: 'Type a gratitude note — watch the world get lighter!' },
-                                    { icon: '🐸', text: 'Type "ribbit" on your keyboard for a surprise! 🎉' },
-                                    { icon: '🌸', text: `Log gratitude 3 days in a row to earn Froggo an accessory!` },
-                                    { icon: '💚', text: 'Drag and toss any floating element when in anti-gravity mode!' },
-                                ].map((tip, i) => (
-                                    <motion.li key={i}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.5 + i * 0.1 }}
-                                        style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}
-                                    >
-                                        <span style={{ fontSize: '18px', flexShrink: 0 }}>{tip.icon}</span>
-                                        <span style={{
-                                            fontSize: '0.9rem',
-                                            color: antiGravity ? 'var(--sage-light)' : 'var(--earth)',
-                                            fontWeight: 600,
-                                            lineHeight: 1.5,
-                                            transition: 'color 0.5s ease',
-                                        }}>
-                                            {tip.text}
-                                        </span>
-                                    </motion.li>
-                                ))}
-                            </ul>
-
-                            {/* Frog image */}
-                            <motion.img
-                                src="/frogs/frog1.svg"
-                                alt="angy frog"
-                                animate={{ y: [0, -5, 0], rotate: [0, 1, -1, 0] }}
-                                transition={{ repeat: Infinity, duration: 4 }}
-                                style={{
-                                    width: '80px',
-                                    borderRadius: '12px',
-                                    marginTop: '20px',
-                                    display: 'block',
-                                }}
-                            />
-                        </motion.div>
-                    </div>
-
-                    {/* Anti-gravity hint */}
-                    <AnimatePresence>
-                        {antiGravity && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 20 }}
-                                style={{
-                                    marginTop: '24px',
-                                    textAlign: 'center',
-                                    color: 'var(--sage-light)',
-                                    fontSize: '0.85rem',
-                                    fontWeight: 600,
-                                }}
-                            >
-                                🌌 Drag & toss the floating cards! Type "ribbit" for a surprise!
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+            {/* Header */}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '28px',
+            }}>
+                <div>
+                    <h1 style={{
+                        fontSize: '24px',
+                        color: '#6B4423',
+                        marginBottom: '8px',
+                    }}>
+                        🐸 Leap of Faith
+                    </h1>
+                    <p style={{
+                        color: '#4682B4',
+                        fontWeight: 600,
+                    }}>
+                        Hey {user?.username}! Welcome to the pond!
+                    </p>
                 </div>
-            </PhysicsWrapper>
+                <button
+                    onClick={onLogout}
+                    style={{
+                        background: 'none',
+                        border: '1px solid #8FBC8F',
+                        borderRadius: '20px',
+                        padding: '8px 16px',
+                        cursor: 'pointer',
+                        color: '#556B2F',
+                        fontWeight: 600,
+                    }}
+                >
+                    🚪 Hop Out
+                </button>
+            </div>
 
-            {/* Overlays (not in physics world) */}
-            <FrogMascot accessoryLevel={streak.accessory_level} />
+            {/* Action buttons */}
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                <button
+                    onClick={() => setShowPondView(!showPondView)}
+                    style={{
+                        background: showPondView 
+                            ? 'linear-gradient(135deg, #4682B4, #8FBC8F)'
+                            : 'linear-gradient(135deg, #8FBC8F, #556B2F)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '25px',
+                        padding: '12px 20px',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                    }}
+                >
+                    {showPondView ? '📝 Back to Writing' : '🌸 View My Pond'}
+                </button>
+                
+                <button
+                    onClick={generatePun}
+                    style={{
+                        background: 'linear-gradient(135deg, #FFB6C1, #FFC0CB)',
+                        color: '#8B4513',
+                        border: 'none',
+                        borderRadius: '25px',
+                        padding: '12px 20px',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                    }}
+                >
+                    🎭 Tell Me a Pun
+                </button>
+                
+                <button
+                    onClick={generateMotivation}
+                    style={{
+                        background: 'linear-gradient(135deg, #FFE4B5, #FFD700)',
+                        color: '#8B4513',
+                        border: 'none',
+                        borderRadius: '25px',
+                        padding: '12px 20px',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                    }}
+                >
+                    ✨ Motivate Me
+                </button>
+            </div>
 
-            {/* Toast notification */}
-            <AnimatePresence>
-                {notification && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -40 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -40 }}
-                        style={{
-                            position: 'fixed',
-                            top: '20px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            zIndex: 300,
-                            background: 'var(--earth)',
-                            color: 'var(--cream)',
-                            borderRadius: '50px',
-                            padding: '12px 24px',
-                            fontWeight: 700,
-                            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-                            whiteSpace: 'nowrap',
-                            maxWidth: '90vw',
-                            textOverflow: 'ellipsis',
-                            overflow: 'hidden',
-                        }}
-                    >
-                        {notification}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Main content */}
+            {!showPondView ? (
+                <div style={{ 
+                    background: 'rgba(245,245,220,0.9)',
+                    padding: '24px',
+                    borderRadius: '16px',
+                    border: '2px solid #8FBC8F',
+                    maxWidth: '600px',
+                }}>
+                    <h2 style={{
+                        fontSize: '18px',
+                        color: '#6B4423',
+                        marginBottom: '16px',
+                    }}>
+                        🌿 The Gratitude Pond
+                    </h2>
+                    <p style={{
+                        fontSize: '14px',
+                        color: '#4682B4',
+                        marginBottom: '16px',
+                    }}>
+                        What are you grateful for today?
+                    </p>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.target);
+                        const text = formData.get('gratitude');
+                        if (text?.trim()) {
+                            handleNoteSubmit(text.trim());
+                            e.target.reset();
+                        }
+                    }} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <textarea
+                            name="gratitude"
+                            rows={3}
+                            placeholder="Today I'm grateful for..."
+                            style={{
+                                resize: 'none',
+                                padding: '12px',
+                                border: '2px solid #8FBC8F',
+                                borderRadius: '8px',
+                                fontSize: '14px',
+                                fontFamily: 'inherit',
+                            }}
+                        />
+                        <button
+                            type="submit"
+                            style={{
+                                background: 'linear-gradient(135deg, #8FBC8F, #556B2F)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '12px',
+                                cursor: 'pointer',
+                                fontWeight: 600,
+                            }}
+                        >
+                            🌸 Release to the Pond
+                        </button>
+                    </form>
+                </div>
+            ) : (
+                <div style={{ 
+                    background: 'rgba(135,206,235,0.9)',
+                    padding: '24px',
+                    borderRadius: '16px',
+                    border: '2px solid #4682B4',
+                    maxWidth: '800px',
+                    minHeight: '400px',
+                }}>
+                    <h2 style={{
+                        fontSize: '20px',
+                        color: '#1E90FF',
+                        marginBottom: '16px',
+                        textAlign: 'center',
+                    }}>
+                        🌸 Your Personal Pond 🌸
+                    </h2>
+                    <p style={{
+                        fontSize: '16px',
+                        color: '#4682B4',
+                        textAlign: 'center',
+                        marginBottom: '24px',
+                    }}>
+                        You have {lilypadMessages.length} message{lilypadMessages.length !== 1 ? 's' : ''} floating in your pond
+                    </p>
+                    
+                    { lilypadMessages.length === 0 ? (
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '40px',
+                            color: '#4682B4',
+                            fontSize: '16px',
+                        }}>
+                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🐸</div>
+                            <div>Your pond is waiting for messages...</div>
+                            <div style={{ fontSize: '14px', marginTop: '8px' }}>
+                                Type a gratitude note to create a lilypad!
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{
+                            position: 'relative',
+                            width: '100%',
+                            height: '400px',
+                        }}>
+                            {lilypadMessages.map((msg, index) => {
+                                // Random position and animation for each lilypad
+                                const randomX = 10 + (index * 15) % 70;
+                                const randomY = 10 + (index * 23) % 60;
+                                const randomDelay = index * 0.5;
+                                const randomDuration = 3 + (index % 3);
+                                const randomSize = 0.8 + (index % 4) * 0.1;
+                                
+                                return (
+                                    <motion.div
+                                        key={msg.id}
+                                        initial={{ 
+                                            opacity: 0, 
+                                            scale: 0,
+                                            x: 0,
+                                            y: 0
+                                        }}
+                                        animate={{ 
+                                            opacity: 1, 
+                                            scale: randomSize,
+                                            x: [0, 5, -5, 0],
+                                            y: [0, -8, -3, 0],
+                                            rotate: [0, 3, -3, 0]
+                                        }}
+                                        transition={{ 
+                                            opacity: { duration: 0.5, delay: randomDelay },
+                                            scale: { duration: 0.8, delay: randomDelay },
+                                            x: { 
+                                                repeat: Infinity, 
+                                                duration: randomDuration,
+                                                ease: "easeInOut"
+                                            },
+                                            y: { 
+                                                repeat: Infinity, 
+                                                duration: randomDuration * 0.7,
+                                                ease: "easeInOut"
+                                            },
+                                            rotate: { 
+                                                repeat: Infinity, 
+                                                duration: randomDuration * 1.2,
+                                                ease: "easeInOut"
+                                            }
+                                        }}
+                                        style={{
+                                            position: 'absolute',
+                                            left: `${randomX}%`,
+                                            top: `${randomY}%`,
+                                            width: '120px',
+                                            height: '120px',
+                                        }}
+                                        whileHover={{
+                                            scale: 1.1,
+                                            zIndex: 10,
+                                            transition: { duration: 0.2 }
+                                        }}
+                                    >
+                                        {/* Realistic lilypad shape */}
+                                        <div style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            position: 'relative',
+                                        }}>
+                                            {/* Main lilypad body */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                width: '100%',
+                                                height: '100%',
+                                                background: 'radial-gradient(ellipse at 30% 30%, #90EE90, #228B22)',
+                                                borderRadius: '50% 45% 50% 45% / 55% 50% 45% 50%',
+                                                border: '2px solid #1F5F1F',
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.3), inset 0 2px 8px rgba(255,255,255,0.3)',
+                                            }} />
+                                            
+                                            {/* Leaf vein */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                width: '2px',
+                                                height: '60%',
+                                                background: 'linear-gradient(to bottom, #1F5F1F, transparent)',
+                                                left: '50%',
+                                                top: '20%',
+                                                transform: 'translateX(-50%) rotate(15deg)',
+                                            }} />
+                                            
+                                            {/* Cross veins */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                width: '40%',
+                                                height: '1px',
+                                                background: 'linear-gradient(to right, transparent, #1F5F1F, transparent)',
+                                                left: '30%',
+                                                top: '40%',
+                                                transform: 'rotate(-20deg)',
+                                            }} />
+                                            <div style={{
+                                                position: 'absolute',
+                                                width: '40%',
+                                                height: '1px',
+                                                background: 'linear-gradient(to right, transparent, #1F5F1F, transparent)',
+                                                right: '30%',
+                                                top: '60%',
+                                                transform: 'rotate(15deg)',
+                                            }} />
+                                            
+                                            {/* Message text */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: '50%',
+                                                left: '50%',
+                                                transform: 'translate(-50%, -50%)',
+                                                color: 'white',
+                                                textAlign: 'center',
+                                                fontSize: '10px',
+                                                fontWeight: '600',
+                                                textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                                                maxWidth: '80px',
+                                                lineHeight: '1.2',
+                                                padding: '4px',
+                                            }}>
+                                                {msg.text.length > 30 ? msg.text.substring(0, 30) + '...' : msg.text}
+                                            </div>
+                                            
+                                            {/* Timestamp hint */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                bottom: '5px',
+                                                right: '5px',
+                                                color: 'rgba(255,255,255,0.7)',
+                                                fontSize: '8px',
+                                                fontWeight: '500',
+                                            }}>
+                                                {new Date(msg.timestamp).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            )}
 
-            {/* Mood Modal */}
-            <AnimatePresence>
-                {showMoodModal && (
-                    <MoodModal
-                        onClose={() => setShowMoodModal(false)}
-                        onMoodSelect={handleMoodSelect}
-                    />
-                )}
-            </AnimatePresence>
+            {/* Kawaii Frog Mascot */}
+            <motion.div
+                style={{
+                    position: 'fixed',
+                    bottom: '20px',
+                    right: '20px',
+                    zIndex: 100,
+                    cursor: 'pointer',
+                }}
+                animate={{
+                    y: [0, -10, 0],
+                    rotate: [0, 5, -5, 0],
+                }}
+                transition={{
+                    repeat: Infinity,
+                    duration: 4,
+                    ease: "easeInOut"
+                }}
+                whileHover={{
+                    scale: 1.1,
+                    transition: { duration: 0.2 }
+                }}
+                onClick={() => {
+                    const messages = ['Ribbit! 🐸', 'Happy hopping! 🌸', 'You\'re amazing! ✨', 'Keep smiling! 😊'];
+                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                    setNotification(randomMessage);
+                    setTimeout(() => setNotification(''), 3000);
+                }}
+            >
+                <div style={{
+                    width: '80px',
+                    height: '80px',
+                    position: 'relative',
+                }}>
+                    {/* Frog body */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(135deg, #98FB98, #90EE90)',
+                        borderRadius: '50% 50% 45% 45%',
+                        border: '3px solid #228B22',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3), inset 0 -2px 8px rgba(255,255,255,0.5)',
+                    }} />
+                    
+                    {/* Belly */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '70%',
+                        height: '60%',
+                        background: 'linear-gradient(135deg, #F0FFF0, #E6FFE6)',
+                        borderRadius: '50%',
+                        bottom: '5%',
+                        left: '15%',
+                        border: '2px solid #90EE90',
+                    }} />
+                    
+                    {/* Big cute eyes */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '25%',
+                        height: '25%',
+                        background: 'white',
+                        borderRadius: '50%',
+                        border: '2px solid #228B22',
+                        top: '20%',
+                        left: '20%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    }}>
+                        <div style={{
+                            width: '60%',
+                            height: '60%',
+                            background: '#000',
+                            borderRadius: '50%',
+                            position: 'relative',
+                        }}>
+                            <div style={{
+                                position: 'absolute',
+                                width: '30%',
+                                height: '30%',
+                                background: 'white',
+                                borderRadius: '50%',
+                                top: '20%',
+                                left: '20%',
+                            }} />
+                        </div>
+                    </div>
+                    <div style={{
+                        position: 'absolute',
+                        width: '25%',
+                        height: '25%',
+                        background: 'white',
+                        borderRadius: '50%',
+                        border: '2px solid #228B22',
+                        top: '20%',
+                        right: '20%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    }}>
+                        <div style={{
+                            width: '60%',
+                            height: '60%',
+                            background: '#000',
+                            borderRadius: '50%',
+                            position: 'relative',
+                        }}>
+                            <div style={{
+                                position: 'absolute',
+                                width: '30%',
+                                height: '30%',
+                                background: 'white',
+                                borderRadius: '50%',
+                                top: '20%',
+                                left: '20%',
+                            }} />
+                        </div>
+                    </div>
+                    
+                    {/* Cute blush cheeks */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '20%',
+                        height: '15%',
+                        background: 'linear-gradient(135deg, #FFB6C1, #FFC0CB)',
+                        borderRadius: '50%',
+                        top: '35%',
+                        left: '5%',
+                        opacity: 0.8,
+                        boxShadow: '0 2px 4px rgba(255,182,193,0.5)',
+                    }} />
+                    <div style={{
+                        position: 'absolute',
+                        width: '20%',
+                        height: '15%',
+                        background: 'linear-gradient(135deg, #FFB6C1, #FFC0CB)',
+                        borderRadius: '50%',
+                        top: '35%',
+                        right: '5%',
+                        opacity: 0.8,
+                        boxShadow: '0 2px 4px rgba(255,182,193,0.5)',
+                    }} />
+                    
+                    {/* Cute smile */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '30%',
+                        height: '8px',
+                        background: '#228B22',
+                        borderRadius: '0 0 20px 20px',
+                        bottom: '25%',
+                        left: '35%',
+                        border: '2px solid #228B22',
+                        borderTop: 'none',
+                    }} />
+                    
+                    {/* Little crown/accessory */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '40%',
+                        height: '15%',
+                        background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                        borderRadius: '50% 50% 0 0',
+                        top: '-8%',
+                        left: '30%',
+                        border: '2px solid #FF8C00',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <div style={{
+                            width: '8px',
+                            height: '8px',
+                            background: '#FF1493',
+                            borderRadius: '50%',
+                            boxShadow: '0 0 4px #FF1493',
+                        }} />
+                    </div>
+                    
+                    {/* Little feet */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '25%',
+                        height: '15%',
+                        background: 'linear-gradient(135deg, #98FB98, #90EE90)',
+                        border: '2px solid #228B22',
+                        borderRadius: '50%',
+                        bottom: '-5%',
+                        left: '15%',
+                    }} />
+                    <div style={{
+                        position: 'absolute',
+                        width: '25%',
+                        height: '15%',
+                        background: 'linear-gradient(135deg, #98FB98, #90EE90)',
+                        border: '2px solid #228B22',
+                        borderRadius: '50%',
+                        bottom: '-5%',
+                        right: '15%',
+                    }} />
+                </div>
+            </motion.div>
+
+            {/* Notification */}
+            {notification && (
+                <div style={{
+                    position: 'fixed',
+                    top: '20px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: '#6B4423',
+                    color: '#F5DEB3',
+                    padding: '12px 24px',
+                    borderRadius: '20px',
+                    fontWeight: 600,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    zIndex: 1000,
+                }}>
+                    {notification}
+                </div>
+            )}
         </div>
     );
 }

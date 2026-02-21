@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
-export default function GratitudePond({ onGravityShift, onNoteSubmit, antiGravity }) {
+export default function GratitudePond({ onGravityShift, onNoteSubmit }) {
     const [text, setText] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -48,11 +48,8 @@ export default function GratitudePond({ onGravityShift, onNoteSubmit, antiGravit
             transition={{ delay: 0.3 }}
             style={{
                 padding: '24px',
-                background: antiGravity
-                    ? 'rgba(26,46,26,0.8)'
-                    : 'rgba(245,245,220,0.92)',
-                borderColor: antiGravity ? 'var(--sage)' : 'var(--sage-light)',
-                transition: 'background 0.8s ease, border-color 0.5s ease',
+                background: 'rgba(245,245,220,0.92)',
+                borderColor: 'var(--sage-light)',
             }}
         >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
@@ -61,14 +58,14 @@ export default function GratitudePond({ onGravityShift, onNoteSubmit, antiGravit
                     <h3 style={{
                         fontFamily: 'Press Start 2P, monospace',
                         fontSize: 'clamp(8px, 1.5vw, 11px)',
-                        color: antiGravity ? 'var(--lily)' : 'var(--earth)',
+                        color: 'var(--earth)',
                         lineHeight: 1.6,
                     }}>
                         The Gratitude Pond
                     </h3>
                     <p style={{
                         fontSize: '0.85rem',
-                        color: antiGravity ? 'var(--sage-light)' : 'var(--pond)',
+                        color: 'var(--pond)',
                         fontWeight: 600,
                         marginTop: '4px',
                     }}>
@@ -86,10 +83,6 @@ export default function GratitudePond({ onGravityShift, onNoteSubmit, antiGravit
                     onChange={handleChange}
                     style={{
                         resize: 'none',
-                        background: antiGravity ? 'rgba(168,213,162,0.1)' : undefined,
-                        color: antiGravity ? 'var(--lily)' : 'var(--earth)',
-                        borderColor: antiGravity ? 'var(--sage)' : undefined,
-                        transition: 'all 0.5s ease',
                     }}
                 />
 
@@ -130,9 +123,6 @@ export default function GratitudePond({ onGravityShift, onNoteSubmit, antiGravit
                     style={{
                         opacity: text.trim() ? 1 : 0.6,
                         width: '100%',
-                        background: antiGravity
-                            ? 'linear-gradient(135deg, var(--pond), var(--sage))'
-                            : undefined,
                     }}
                 >
                     {loading ? '🌀 Planting...' : '🌸 Release to the Pond'}

@@ -72,22 +72,145 @@ export default function FrogMascot({ accessoryLevel = 0 }) {
                 </motion.div>
             )}
 
-            {/* Frog image */}
+            {/* Frog image - Pixelated CSS Art */}
             <div style={{ position: 'relative' }}>
-                <img
-                    src="/frogs/frog2.svg"
-                    alt="Froggo mascot"
+                <motion.div
                     style={{
                         width: 'clamp(70px, 10vw, 110px)',
-                        borderRadius: '50%',
-                        border: '3px solid var(--sage)',
-                        boxShadow: hovered
-                            ? '0 0 20px rgba(135,169,107,0.6)'
-                            : '0 4px 12px rgba(107,66,38,0.2)',
-                        transition: 'box-shadow 0.3s ease',
-                        display: 'block',
+                        height: 'clamp(70px, 10vw, 110px)',
+                        position: 'relative',
+                        imageRendering: 'pixelated',
+                        filter: hovered ? 'brightness(1.1)' : 'brightness(1)',
+                        transition: 'filter 0.3s ease',
                     }}
-                />
+                    animate={squishing ? {
+                        scaleX: [1, 1.2, 0.9, 1],
+                        scaleY: [1, 0.8, 1.1, 1],
+                    } : hovered ? {
+                        y: [0, -2, 0],
+                    } : {}}
+                    transition={squishing ? { duration: 0.4 } : hovered ? { repeat: Infinity, duration: 1 } : {}}
+                >
+                    {/* Frog Body - Pixelated */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        background: '#4CAF50',
+                        borderRadius: '40% 40% 50% 50%',
+                        border: '3px solid #2E7D32',
+                        boxSizing: 'border-box',
+                    }} />
+                    
+                    {/* Belly */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '70%',
+                        height: '60%',
+                        background: '#81C784',
+                        borderRadius: '50%',
+                        bottom: '5%',
+                        left: '15%',
+                        border: '2px solid #66BB6A',
+                    }} />
+                    
+                    {/* Eyes */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '25%',
+                        height: '25%',
+                        background: 'white',
+                        borderRadius: '50%',
+                        border: '2px solid #2E7D32',
+                        top: '20%',
+                        left: '20%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <div style={{
+                            width: '50%',
+                            height: '50%',
+                            background: '#000',
+                            borderRadius: '50%',
+                        }} />
+                    </div>
+                    <div style={{
+                        position: 'absolute',
+                        width: '25%',
+                        height: '25%',
+                        background: 'white',
+                        borderRadius: '50%',
+                        border: '2px solid #2E7D32',
+                        top: '20%',
+                        right: '20%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <div style={{
+                            width: '50%',
+                            height: '50%',
+                            background: '#000',
+                            borderRadius: '50%',
+                        }} />
+                    </div>
+                    
+                    {/* Cheeks (blush) */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '15%',
+                        height: '15%',
+                        background: '#FFB3BA',
+                        borderRadius: '50%',
+                        top: '35%',
+                        left: '10%',
+                        opacity: 0.7,
+                    }} />
+                    <div style={{
+                        position: 'absolute',
+                        width: '15%',
+                        height: '15%',
+                        background: '#FFB3BA',
+                        borderRadius: '50%',
+                        top: '35%',
+                        right: '10%',
+                        opacity: 0.7,
+                    }} />
+                    
+                    {/* Mouth */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '30%',
+                        height: '3px',
+                        background: '#2E7D32',
+                        borderRadius: '2px',
+                        bottom: '30%',
+                        left: '35%',
+                    }} />
+                    
+                    {/* Feet */}
+                    <div style={{
+                        position: 'absolute',
+                        width: '20%',
+                        height: '15%',
+                        background: '#4CAF50',
+                        border: '2px solid #2E7D32',
+                        borderRadius: '50%',
+                        bottom: '-5%',
+                        left: '20%',
+                    }} />
+                    <div style={{
+                        position: 'absolute',
+                        width: '20%',
+                        height: '15%',
+                        background: '#4CAF50',
+                        border: '2px solid #2E7D32',
+                        borderRadius: '50%',
+                        bottom: '-5%',
+                        right: '20%',
+                    }} />
+                </motion.div>
                 {/* Hover tooltip */}
                 {hovered && (
                     <motion.div
