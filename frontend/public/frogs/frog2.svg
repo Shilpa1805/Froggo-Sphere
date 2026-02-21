@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <rect width="300" height="300" fill="white"/>
+
+  <!-- Shadow -->
+  <ellipse cx="150" cy="255" rx="72" ry="16" fill="#c8e6c9" opacity="0.5"/>
+
+  <!-- Body -->
+  <ellipse cx="150" cy="195" rx="80" ry="72" fill="#6ec06e"/>
+  <ellipse cx="150" cy="195" rx="80" ry="72" fill="url(#bodyGrad2)"/>
+
+  <!-- Belly -->
+  <ellipse cx="150" cy="210" rx="50" ry="47" fill="#b8e8b8"/>
+
+  <!-- Spots -->
+  <circle cx="108" cy="168" r="13" fill="#5aab5a" opacity="0.55"/>
+  <circle cx="193" cy="172" r="9" fill="#5aab5a" opacity="0.45"/>
+
+  <!-- Tiny tux jacket -->
+  <path d="M 115 210 Q 150 200 185 210 L 185 255 Q 150 265 115 255 Z" fill="#2c2c2c"/>
+  <path d="M 135 210 Q 150 205 165 210 L 158 240 Q 150 245 142 240 Z" fill="white"/>
+  <!-- Bow tie -->
+  <path d="M 138 215 Q 150 220 162 215 Q 150 210 138 215 Z" fill="#e74c3c"/>
+  <circle cx="150" cy="215" r="4" fill="#c0392b"/>
+
+  <!-- Arms - little happy ones -->
+  <path d="M 75 190 Q 58 175 52 162" stroke="#5aab5a" stroke-width="15" fill="none" stroke-linecap="round"/>
+  <ellipse cx="50" cy="157" rx="11" ry="8" fill="#6ec06e" transform="rotate(-15 50 157)"/>
+  <path d="M 225 190 Q 242 175 248 162" stroke="#5aab5a" stroke-width="15" fill="none" stroke-linecap="round"/>
+  <ellipse cx="250" cy="157" rx="11" ry="8" fill="#6ec06e" transform="rotate(15 250 157)"/>
+
+  <!-- Feet -->
+  <ellipse cx="118" cy="262" rx="27" ry="11" fill="#5aab5a"/>
+  <ellipse cx="182" cy="262" rx="27" ry="11" fill="#5aab5a"/>
+
+  <!-- Head -->
+  <ellipse cx="150" cy="130" rx="64" ry="56" fill="#6ec06e"/>
+
+  <!-- Eyes - big happy -->
+  <ellipse cx="122" cy="116" rx="20" ry="19" fill="white"/>
+  <ellipse cx="178" cy="116" rx="20" ry="19" fill="white"/>
+  <circle cx="125" cy="118" r="12" fill="#1a1a2e"/>
+  <circle cx="181" cy="118" r="12" fill="#1a1a2e"/>
+  <circle cx="130" cy="112" r="5" fill="white"/>
+  <circle cx="186" cy="112" r="5" fill="white"/>
+  <!-- happy eyebrows raised -->
+  <path d="M 110 100 Q 122 93 132 99" stroke="#3a7a3a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M 168 99 Q 178 93 190 100" stroke="#3a7a3a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Blush -->
+  <ellipse cx="104" cy="133" rx="15" ry="9" fill="#ff9eb5" opacity="0.65"/>
+  <ellipse cx="196" cy="133" rx="15" ry="9" fill="#ff9eb5" opacity="0.65"/>
+
+  <!-- Smile -->
+  <path d="M 133 150 Q 150 163 167 150" stroke="#3a7a3a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Little shine marks on cheeks -->
+  <path d="M 90 128 L 95 123" stroke="#ff9eb5" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 210 128 L 205 123" stroke="#ff9eb5" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 87 134 L 93 131" stroke="#ff9eb5" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 213 134 L 207 131" stroke="#ff9eb5" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- Star near head -->
+  <polygon points="266,55 269,65 280,65 271,72 274,82 266,76 258,82 261,72 252,65 263,65" fill="#f9c74f" opacity="0.9"/>
+
+  <defs>
+    <radialGradient id="bodyGrad2" cx="38%" cy="33%" r="60%">
+      <stop offset="0%" stop-color="#80d080"/>
+      <stop offset="100%" stop-color="#4a9a4a" stop-opacity="0.4"/>
+    </radialGradient>
+  </defs>
+
+  <text x="150" y="286" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#3a7a3a" font-style="italic">good job today! ⭐</text>
+</svg>

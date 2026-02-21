@@ -1,0 +1,254 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap');
+@import "tailwindcss";
+
+
+/* ─── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --sage: #87A96B;
+  --sage-dark: #6a8a52;
+  --sage-light: #b4c99a;
+  --cream: #F5F5DC;
+  --cream-dark: #e8e8c4;
+  --earth: #6B4226;
+  --earth-light: #8B5A3A;
+  --pond: #4A7C59;
+  --lily: #A8D5A2;
+  --lily-glow: #7fc47a;
+  --sky: #c8e6c9;
+  --night: #1a2e1a;
+  --night-mid: #243524;
+}
+
+/* ─── Base ──────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  font-family: 'Nunito', sans-serif;
+  background: var(--cream);
+  color: var(--earth);
+  overflow-x: hidden;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sage);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sage-dark);
+}
+
+/* ─── Pixel font utility ────────────────────────────────────── */
+.font-pixel {
+  font-family: 'Press Start 2P', monospace;
+}
+
+.font-body {
+  font-family: 'Nunito', sans-serif;
+}
+
+/* ─── Physics canvas overlay ─────────────────────────────────── */
+.physics-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.physics-canvas.active {
+  pointer-events: all;
+}
+
+/* ─── Lily pad token glow ────────────────────────────────────── */
+@keyframes lily-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 12px #7fc47a88, 0 0 24px #7fc47a44;
+  }
+
+  50% {
+    box-shadow: 0 0 20px #7fc47acc, 0 0 40px #7fc47a66;
+  }
+}
+
+.lily-token {
+  animation: lily-glow 2.5s ease-in-out infinite;
+}
+
+/* ─── Starry pond background ─────────────────────────────────── */
+@keyframes star-drift {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-20px) scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+/* ─── Bounce keyframe ────────────────────────────────────────── */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.1);
+  }
+
+  80% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.bounce-in {
+  animation: bounce-in 0.5s cubic-bezier(.36, .07, .19, .97);
+}
+
+/* ─── Frog squish ────────────────────────────────────────────── */
+@keyframes squish {
+  0% {
+    transform: scale(1, 1);
+  }
+
+  30% {
+    transform: scale(1.3, 0.7);
+  }
+
+  60% {
+    transform: scale(0.85, 1.15);
+  }
+
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+.squish {
+  animation: squish 0.4s ease;
+}
+
+/* ─── Speech bubble arrow ────────────────────────────────────── */
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 20px;
+  border: 6px solid transparent;
+  border-top-color: var(--cream);
+}
+
+/* ─── Card base ──────────────────────────────────────────────── */
+.pond-card {
+  background: rgba(245, 245, 220, 0.92);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--sage-light);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(107, 66, 38, 0.12);
+}
+
+/* ─── Button base ─────────────────────────────────────────────── */
+.btn-sage {
+  background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+  color: var(--cream);
+  border: none;
+  border-radius: 50px;
+  padding: 12px 28px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 15px rgba(135, 169, 107, 0.4);
+}
+
+.btn-sage:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(135, 169, 107, 0.5);
+}
+
+.btn-sage:active {
+  transform: scale(0.97);
+}
+
+.btn-earth {
+  background: linear-gradient(135deg, var(--earth-light), var(--earth));
+  color: var(--cream);
+  border: none;
+  border-radius: 50px;
+  padding: 12px 28px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 15px rgba(107, 66, 38, 0.3);
+}
+
+.btn-earth:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-earth:active {
+  transform: scale(0.97);
+}
+
+/* ─── Anti-gravity mode body ─────────────────────────────────── */
+body.anti-gravity {
+  background: var(--night) !important;
+}
+
+/* ─── Input ───────────────────────────────────────────────────── */
+.pond-input {
+  background: rgba(245, 245, 220, 0.9);
+  border: 2px solid var(--sage-light);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  color: var(--earth);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pond-input:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(135, 169, 107, 0.25);
+}
